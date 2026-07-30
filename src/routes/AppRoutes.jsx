@@ -1,5 +1,5 @@
 import React from 'react'
-import { createBrowserRouter, RouterProvider } from "react-router"
+import { createBrowserRouter, RouterProvider, Navigate } from "react-router"
 import AuthLayout from '../layout/AuthLayout'
 import Login from '../pages/Login'
 import Register from '../pages/Register'
@@ -13,6 +13,12 @@ import ProductDetail from '../pages/ProductDetail'
 
 const AppRoutes = () => {
     let router = createBrowserRouter([
+        {
+            // Redirect bare "/" to "/login" for first-time visitors
+            index: true,
+            path: "/",
+            element: <Navigate to="/login" replace />
+        },
         {
             path: "/",
             element: <PublicRoutes />,
