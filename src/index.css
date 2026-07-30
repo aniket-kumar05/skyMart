@@ -1,0 +1,32 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+@import "tailwindcss";
+
+/* ─── SkyMart Color Tokens ─── */
+:root {
+  --brand:      #C8FF00;
+  --brand-dark: #a8d900;
+  --bg:         #0D0D0D;
+  --card-bg:    #1C1C1C;
+  --input-bg:   #272727;
+  --input-hover:#2e2e2e;
+  --border:     #333333;
+  --muted:      #7a7a7a;
+  --error:      #FF4D4D;
+}
+
+/* ─── Global Base ─── */
+body {
+  font-family: 'Inter', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  background-color: var(--bg);
+  color: #fff;
+}
+
+/* ─── Autofill override (cannot be done with Tailwind) ─── */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus {
+  -webkit-text-fill-color: #fff;
+  -webkit-box-shadow: 0 0 0px 1000px var(--input-hover) inset;
+  transition: background-color 5000s ease-in-out 0s;
+}
