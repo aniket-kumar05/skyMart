@@ -15,20 +15,16 @@ export const AuthProvider = ({ children }) => {
     const logout = () => {
         setLoggedIn(null);
         localStorage.removeItem("loggedInUser");
-        localStorage.removeItem("cartItems"); // clear cart for next user
     };
 
-    /* ── Sync state if localStorage is manually cleared from browser devtools ── */
     useEffect(() => {
         const syncFromStorage = () => {
             const stored = localStorage.getItem("loggedInUser");
             setLoggedIn(stored ? JSON.parse(stored) : null);
         };
 
-        // Fires when ANOTHER tab clears storage
         window.addEventListener("storage", syncFromStorage);
 
-        // Fires when user returns to THIS tab (catches same-tab devtools clearing)
         document.addEventListener("visibilitychange", syncFromStorage);
 
         return () => {

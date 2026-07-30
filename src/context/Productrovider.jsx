@@ -2,43 +2,59 @@ import React, { useState, useEffect } from 'react';
 import { ProductStore } from './ProductContext';
 import { toast } from 'react-toastify';
 
+
+const cartKey = (email) => `cart_${email}`;
+
 export const ProductProvider = ({ children }) => {
   const [products, setProducts] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All Categories');
-  
-  // Persistent Cart state initialized from localStorage
+
   const [cart, setCart] = useState(() => {
     try {
-      const saved = localStorage.getItem("cartItems");
-      return saved ? JSON.parse(saved) : [];
-    } catch {
-      return [];
-    }
+      const loggedIn = JSON.parse(localStorage.getItem('loggedInUser') || 'null');
+      if (loggedIn?.email) {
+        const saved = localStorage.getItem(cartKey(loggedIn.email));
+        return saved ? JSON.parse(saved) : [];
+      }
+    } catch {/* ignore */}
+    return [];
   });
 
   const [isCartOpen, setIsCartOpen] = useState(false);
 
-  // Sync cart state to localStorage on any change
+  // Sync the in-memory cart to the ACTIVE user's localStorage key on every change.
+  // We read the logged-in user's email directly from localStorage so we don't
+  // need to pass the auth context here (avoids circular deps).
   useEffect(() => {
     try {
-      localStorage.setItem("cartItems", JSON.stringify(cart));
+      const loggedIn = JSON.parse(localStorage.getItem('loggedInUser') || 'null');
+      if (loggedIn?.email) {
+        localStorage.setItem(cartKey(loggedIn.email), JSON.stringify(cart));
+      }
     } catch (e) {
-      console.error("Error persisting cart to localStorage", e);
+      console.error('Error persisting cart to localStorage', e);
     }
   }, [cart]);
 
-  // Reset in-memory cart when another part of the app clears cartItems
-  // (e.g. logout or new account creation)
-  useEffect(() => {
-    const handleStorage = (e) => {
-      if (e.key === "cartItems" && e.newValue === null) {
-        setCart([]);
-      }
-    };
-    window.addEventListener("storage", handleStorage);
-    return () => window.removeEventListener("storage", handleStorage);
-  }, []);
+  // ── Load cart for a specific user (called on login) ────────────────────────
+  const loadCartForUser = (user) => {
+    try {
+      const saved = localStorage.getItem(cartKey(user.email));
+      setCart(saved ? JSON.parse(saved) : []);
+    } catch {
+      setCart([]);
+    }
+  };
+
+
+  const saveAndClearCart = () => {
+    setCart([]);
+  };
+
+  const clearCart = () => {
+    setCart([]);
+  };
 
   // Add product to cart & open cart drawer
   const addToCart = (product) => {
@@ -55,7 +71,7 @@ export const ProductProvider = ({ children }) => {
       return [...prevCart, { ...product, quantity: 1 }];
     });
     setIsCartOpen(true);
-     toast.success("Added to cart 🛒", { position: "bottom-right" });
+    toast.success('Added to cart 🛒', { position: 'bottom-right' });
   };
 
   // Update item quantity
@@ -76,12 +92,6 @@ export const ProductProvider = ({ children }) => {
   // Remove item from cart
   const removeFromCart = (productId) => {
     setCart((prevCart) => prevCart.filter((item) => item.id !== productId));
-  };
-
-  // Clear all items & localStorage
-  const clearCart = () => {
-    setCart([]);
-    localStorage.removeItem("cartItems");
   };
 
   // Calculate totals
@@ -109,6 +119,8 @@ export const ProductProvider = ({ children }) => {
         updateQuantity,
         removeFromCart,
         clearCart,
+        loadCartForUser,
+        saveAndClearCart,
         cartTotal,
         cartCount,
       }}

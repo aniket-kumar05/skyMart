@@ -6,12 +6,12 @@ import { ProductStore } from '../context/ProductContext';
 
 const Navbar = () => {
   const { loggedIn, logout } = useContext(AuthStore);
-  const { setIsCartOpen, cartCount, clearCart } = useContext(ProductStore);
+  const { setIsCartOpen, cartCount, saveAndClearCart } = useContext(ProductStore);
   const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const handleLogout = () => {
-    clearCart(); // clear in-memory cart state immediately
+    saveAndClearCart();
     logout();
     navigate('/login');
   };

@@ -2,6 +2,7 @@ import React, { useState, useContext } from "react";
 import { useNavigate } from "react-router";
 import { useForm } from "react-hook-form";
 import { AuthStore } from "../context/AuthContext";
+import { ProductStore } from "../context/ProductContext";
 import { toast } from "react-toastify";
 import { Mail, Lock, Eye, EyeOff, ArrowRight, Zap } from "lucide-react";
 
@@ -12,6 +13,7 @@ const Login = () => {
 
   const { register, reset, handleSubmit } = useForm();
   const { setLoggedIn, registerUser } = useContext(AuthStore);
+  const { loadCartForUser } = useContext(ProductStore);
 
   const onInvalid = (errors) => {
     const allRequired = Object.values(errors).every((e) => e.type === "required");
@@ -36,6 +38,7 @@ const Login = () => {
 
     setLoggedIn(user);
     localStorage.setItem("loggedInUser", JSON.stringify(user));
+    loadCartForUser(user); // restore this user's saved cart
     toast.success("Welcome back!", { position: "bottom-right" });
     navigate("/home");
     reset();
